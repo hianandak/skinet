@@ -20,6 +20,22 @@ namespace Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            //Sqlite Support Double , So this is required
+            if(Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                foreach(var entirtType in modelBuilder.Model.GetEntityTypes())
+                {
+                    var properties = entirtType.ClrType.GetProperties().Where(p => 
+                        p.PropertyType==typeof(Decimal));
+
+                        foreach(var property in properties)
+                        {
+                            modelBuilder.Entity(entirtType.Name).Property(property.Name)
+                             .HasConversion<Double>();
+                        }
+                }
+            }
         }
     }
 }
